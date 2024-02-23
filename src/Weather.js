@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Container, Row, Col, Image } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import axios from 'axios';
 import './App.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCity, setWeatherData, selectCityAndWeatherData } from './redux/weatherSlice';
 
 function Weather() {
-  const [city, setCity] = useState('Mexico');
-  const [weatherData, setWeatherData] = useState(null);
+  const dispatch = useDispatch();
+  const { city, weatherData } = useSelector(selectCityAndWeatherData);
   const [cities, setCities] = useState([]);
 
   useEffect(() => {
@@ -27,15 +28,13 @@ function Weather() {
 
   useEffect(() => {
     fetchWeatherData();
-  }, []);
+  }, [city]);
 
   const fetchWeatherData = async () => {
     try {
-        //https://api.tomorrow.io/v4/timelines?location=${city}&fields=temperature&timesteps=1h&units=metric&apikey=${API_KEY}
-        //https://api.tomorrow.io/v4/timelines?location=${city}&fields=temperature&timesteps=1h&units=metric&apikey=${API_KEY}
-      const response = await axios.get(`https://api.tomorrow.io/v4/timelines?location=${city}&fields=temperature&timesteps=1h&units=metric&apikey=${API_KEY}
-      `);
-      setWeatherData(response.data.data.timelines[0].intervals[0].values.temperature);
+      const response = await fetch(`https://api.tomorrow.io/v4/timelines?location=${city}&fields=temperature&timesteps=1h&units=metric&apikey=${API_KEY}`);
+      const data = await response.json();
+      dispatch(setWeatherData(data.data.timelines[0].intervals[0].values.temperature));
     } catch (error) {
       console.error('Error fetching weather data:', error);
     }
@@ -51,14 +50,14 @@ function Weather() {
     <Container className="weather-container">
       <Row className="justify-content-center align-items-center">
         <Col xs={12} className="text-center">
+        <h1 className="weather-title">WEATHER APP</h1>
           <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Rotating_earth_%28huge%29.gif/480px-Rotating_earth_%28huge%29.gif" alt="Planet Logo" className="planet-logo" />
-          <h1 className="weather-title">Weather App</h1>
           <Form.Group controlId="cityInput">
             <Form.Label className="select-label">Enter a city:</Form.Label>
             <Form.Control
               type="text"
               value={city}
-              onChange={(event) => setCity(event.target.value)}
+              onChange={(event) => dispatch(setCity(event.target.value))}
               onKeyPress={handleKeyPress}
               className="city-input"
               list="cities"

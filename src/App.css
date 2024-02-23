@@ -1,5 +1,5 @@
 .background{
-  background-color: #282c34;
+  background-color: #f1f1f1;
 }
 
 .weather-container {
@@ -8,7 +8,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  color: white;
+  color: #282c34;
 }
 
 .planet-logo {
